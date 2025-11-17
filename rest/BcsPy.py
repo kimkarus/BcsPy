@@ -11,7 +11,7 @@ from jwt import decode
 
 
 class BcsPy:
-    """Работа с Bcs OpenAPI V2 https://trade-api.bcs.ru/ из Python"""
+    """Работа с Bcs OpenAPI V1 https://trade-api.bcs.ru/ из Python"""
     requests.adapters.DEFAULT_RETRIES = 10  # Настройка кол-ва попыток
     requests.adapters.DEFAULT_POOL_TIMEOUT = 10  # Настройка таймауту запроса в секундах
     tz_msk = timezone('Europe/Moscow')  # Время UTC будем приводить к московскому времени
