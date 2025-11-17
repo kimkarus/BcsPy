@@ -15,7 +15,7 @@ class BcsPy:
     requests.adapters.DEFAULT_RETRIES = 10  # Настройка кол-ва попыток
     requests.adapters.DEFAULT_POOL_TIMEOUT = 10  # Настройка таймауту запроса в секундах
     tz_msk = timezone('Europe/Moscow')  # Время UTC будем приводить к московскому времени
-    jwt_token_ttl = 60  # Время жизни токена JWT в секундах
+    jwt_token_ttl = 43200  # Время жизни токена JWT в секундах - 12 часов
     exchanges = ('MOEX', 'SPBX',)  # Биржи
     logger = logging.getLogger('BcsPy')  # Будем вести лог
 
