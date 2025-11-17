@@ -89,6 +89,7 @@ class BcsPy:
         result = self.check_result(
             post(url=f'{self.api_server}/trade-api-bff-operations/api/v1/orders', headers=headers,
                  json=payload))
+        time.sleep(1)
         status = self.check_result(
             get(url=f'{self.api_server}/trade-api-bff-operations/api/v1/orders/{str_uuid}', headers=headers))
         if status is None:
@@ -119,6 +120,7 @@ class BcsPy:
         result = self.check_result(
             post(url=f'{self.api_server}/trade-api-bff-operations/api/v1/orders', headers=headers,
                  json=payload))
+        time.sleep(1)
         status = self.check_result(
             get(url=f'{self.api_server}/trade-api-bff-operations/api/v1/orders/{str_uuid}', headers=headers))
         if status is None:
