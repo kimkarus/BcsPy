@@ -66,7 +66,8 @@ class BcsPy:
             if row['term'] == "T1" and row['board'] == "":
                 _money.append(row)
             if row['term'] == "T1" and row['board'] != "":
-                _positions.append(row)
+                if float(row["quantity"]) > 0:
+                    _positions.append(row)
         return _positions, _money
 
     def close_market_order(self, portfolio, exchange, symbol, side, quantity, security_board, comment='',
