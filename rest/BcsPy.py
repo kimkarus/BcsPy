@@ -1,13 +1,15 @@
 import logging  # Будем вести лог
+import time
 from datetime import datetime, timedelta
 from time import time_ns  # Текущее время в наносекундах, прошедших с 01.01.1970 UTC
 import uuid  # Номера подписок должны быть уникальными во времени и пространстве
 from json import loads, JSONDecodeError, dumps  # Сервер WebSockets работает с JSON сообщениями
-
 from pytz import timezone, utc  # Работаем с временнОй зоной и UTC
 import requests.adapters  # Настройки запросов/ответов
 from requests import post, get, put, delete, Response  # Запросы/ответы от сервера запросов
 from jwt import decode
+from urllib3.exceptions import InsecureRequestWarning
+from urllib3 import disable_warnings
 
 
 class BcsPy:
@@ -15,7 +17,7 @@ class BcsPy:
     requests.adapters.DEFAULT_RETRIES = 10  # Настройка кол-ва попыток
     requests.adapters.DEFAULT_POOL_TIMEOUT = 10  # Настройка таймауту запроса в секундах
     tz_msk = timezone('Europe/Moscow')  # Время UTC будем приводить к московскому времени
-    jwt_token_ttl = 60  # Время жизни токена JWT в секундах
+    jwt_token_ttl = 43200  # Время жизни токена JWT в секундах - 12 часов
     exchanges = ('MOEX', 'SPBX',)  # Биржи
     logger = logging.getLogger('BcsPy')  # Будем вести лог
 
@@ -56,9 +58,10 @@ class BcsPy:
     def get_positions_money(self, portfolio, exchange, without_currency=False, format='Simple'):
         """Получение информации о позициях
         """
+        disable_warnings(InsecureRequestWarning)
         result = self.check_result(
             get(url=f'{self.api_server}/trade-api-bff-portfolio/api/v1/portfolio',
-                headers=self.get_headers()))
+                headers=self.get_headers(), verify=False))
         _positions = []
         _money = []
         for row in result:
@@ -66,7 +69,8 @@ class BcsPy:
             if row['term'] == "T1" and row['board'] == "":
                 _money.append(row)
             if row['term'] == "T1" and row['board'] != "":
-                _positions.append(row)
+                if float(row["quantity"]) > 0:
+                    _positions.append(row)
         return _positions, _money
 
     def close_market_order(self, portfolio, exchange, symbol, side, quantity, security_board, comment='',
@@ -86,11 +90,14 @@ class BcsPy:
                    'classCode': security_board
                    }
 
+        disable_warnings(InsecureRequestWarning)
         result = self.check_result(
             post(url=f'{self.api_server}/trade-api-bff-operations/api/v1/orders', headers=headers,
-                 json=payload))
+                 json=payload, verify=False))
+        time.sleep(5)
+        disable_warnings(InsecureRequestWarning)
         status = self.check_result(
-            get(url=f'{self.api_server}/trade-api-bff-operations/api/v1/orders/{str_uuid}', headers=headers))
+            get(url=f'{self.api_server}/trade-api-bff-operations/api/v1/orders/{str_uuid}', headers=headers, verify=False))
         if status is None:
             return None
         if (status["data"]["orderStatus"] == "4"
@@ -115,12 +122,14 @@ class BcsPy:
                    'ticker': symbol,
                    'classCode': security_board
                    }
-
+        disable_warnings(InsecureRequestWarning)
         result = self.check_result(
             post(url=f'{self.api_server}/trade-api-bff-operations/api/v1/orders', headers=headers,
-                 json=payload))
+                 json=payload, verify=False))
+        time.sleep(5)
+        disable_warnings(InsecureRequestWarning)
         status = self.check_result(
-            get(url=f'{self.api_server}/trade-api-bff-operations/api/v1/orders/{str_uuid}', headers=headers))
+            get(url=f'{self.api_server}/trade-api-bff-operations/api/v1/orders/{str_uuid}', headers=headers, verify=False))
         if status is None:
             return None
         if (status["data"]["orderStatus"] == "4"
@@ -142,6 +151,7 @@ class BcsPy:
                   'endDate': current_datetime_iso_8601_string,
                   'timeFrame': "M30",
                   }
+        disable_warnings(InsecureRequestWarning)
         result = self.check_result(
             get(url=f'{self.api_server}'
                     f'/trade-api-market-data-connector/api/v1/candles-chart?'
@@ -150,7 +160,7 @@ class BcsPy:
                     f'&startDate={one_hour_ago_iso_8601_string}'
                     f'&endDate={current_datetime_iso_8601_string}'
                     f'&timeFrame=M30',
-                headers=self.get_headers()))
+                headers=self.get_headers(), timeout=60, verify=False))
         return result
 
     def get_jwt_token(self):
@@ -192,9 +202,11 @@ class BcsPy:
     def check_result(self, response):
         """Анализ результата запроса
 
+
         :param Response response: Результат запроса
         :return: Справочник из JSON, текст, None в случае веб ошибки
         """
+
         if not response:  # Если ответ не пришел. Например, при таймауте
             self.on_error('Ошибка сервера: Таймаут')  # Событие ошибки
             return None  # то возвращаем пустое значение
