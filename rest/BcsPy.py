@@ -13,7 +13,7 @@ from urllib3 import disable_warnings
 
 
 class BcsPy:
-    """Работа с Bcs OpenAPI V1 https://trade-api.bcs.ru/ из Python"""
+    """Работа с Bcs OpenAPI V2 https://trade-api.bcs.ru/ из Python"""
     requests.adapters.DEFAULT_RETRIES = 10  # Настройка кол-ва попыток
     requests.adapters.DEFAULT_POOL_TIMEOUT = 10  # Настройка таймауту запроса в секундах
     tz_msk = timezone('Europe/Moscow')  # Время UTC будем приводить к московскому времени
@@ -64,6 +64,8 @@ class BcsPy:
                 headers=self.get_headers(), verify=False))
         _positions = []
         _money = []
+        if result is None:
+            return _positions, _money
         for row in result:
             str = ""
             if row['term'] == "T1" and row['board'] == "":
@@ -93,14 +95,9 @@ class BcsPy:
         disable_warnings(InsecureRequestWarning)
         result = self.check_result(
             post(url=f'{self.api_server}/trade-api-bff-operations/api/v1/orders', headers=headers,
-<<<<<<< HEAD
                  json=payload, verify=False))
         time.sleep(5)
         disable_warnings(InsecureRequestWarning)
-=======
-                 json=payload))
-        time.sleep(1)
->>>>>>> b1d74ccba14791d21913d67da6e9acef98ec0c8d
         status = self.check_result(
             get(url=f'{self.api_server}/trade-api-bff-operations/api/v1/orders/{str_uuid}', headers=headers, verify=False))
         if status is None:
@@ -130,14 +127,9 @@ class BcsPy:
         disable_warnings(InsecureRequestWarning)
         result = self.check_result(
             post(url=f'{self.api_server}/trade-api-bff-operations/api/v1/orders', headers=headers,
-<<<<<<< HEAD
                  json=payload, verify=False))
         time.sleep(5)
         disable_warnings(InsecureRequestWarning)
-=======
-                 json=payload))
-        time.sleep(1)
->>>>>>> b1d74ccba14791d21913d67da6e9acef98ec0c8d
         status = self.check_result(
             get(url=f'{self.api_server}/trade-api-bff-operations/api/v1/orders/{str_uuid}', headers=headers, verify=False))
         if status is None:
