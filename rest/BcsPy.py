@@ -61,7 +61,7 @@ class BcsPy:
         disable_warnings(InsecureRequestWarning)
         result = self.check_result(
             get(url=f'{self.api_server}/trade-api-bff-portfolio/api/v1/portfolio',
-                headers=self.get_headers(), verify=False))
+                headers=self.get_headers(), verify=False, timeout=10))
         _positions = []
         _money = []
         if result is None:
@@ -95,11 +95,12 @@ class BcsPy:
         disable_warnings(InsecureRequestWarning)
         result = self.check_result(
             post(url=f'{self.api_server}/trade-api-bff-operations/api/v1/orders', headers=headers,
-                 json=payload, verify=False))
+                 json=payload, verify=False, timeout=10))
         time.sleep(5)
         disable_warnings(InsecureRequestWarning)
         status = self.check_result(
-            get(url=f'{self.api_server}/trade-api-bff-operations/api/v1/orders/{str_uuid}', headers=headers, verify=False))
+            get(url=f'{self.api_server}/trade-api-bff-operations/api/v1/orders/{str_uuid}', headers=headers,
+                verify=False, timeout=10))
         if status is None:
             return None
         if (status["data"]["orderStatus"] == "4"
@@ -127,11 +128,12 @@ class BcsPy:
         disable_warnings(InsecureRequestWarning)
         result = self.check_result(
             post(url=f'{self.api_server}/trade-api-bff-operations/api/v1/orders', headers=headers,
-                 json=payload, verify=False))
+                 json=payload, verify=False, timeout=10))
         time.sleep(5)
         disable_warnings(InsecureRequestWarning)
         status = self.check_result(
-            get(url=f'{self.api_server}/trade-api-bff-operations/api/v1/orders/{str_uuid}', headers=headers, verify=False))
+            get(url=f'{self.api_server}/trade-api-bff-operations/api/v1/orders/{str_uuid}', headers=headers,
+                verify=False, timeout=10))
         if status is None:
             return None
         if (status["data"]["orderStatus"] == "4"
