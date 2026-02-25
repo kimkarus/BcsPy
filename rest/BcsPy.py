@@ -59,9 +59,13 @@ class BcsPy:
         """Получение информации о позициях
         """
         disable_warnings(InsecureRequestWarning)
-        result = self.check_result(
-            get(url=f'{self.api_server}/trade-api-bff-portfolio/api/v1/portfolio',
-                headers=self.get_headers(), verify=False, timeout=10))
+        try:
+            result = self.check_result(
+                get(url=f'{self.api_server}/trade-api-bff-portfolio/api/v1/portfolio',
+                    headers=self.get_headers(), verify=False, timeout=10))
+        except Exception as e:
+            print(f"Произошла ошибка BCS Trade API: {e}")
+            return None
         _positions = []
         _money = []
         if result is None:
@@ -93,9 +97,13 @@ class BcsPy:
                    }
 
         disable_warnings(InsecureRequestWarning)
-        result = self.check_result(
-            post(url=f'{self.api_server}/trade-api-bff-operations/api/v1/orders', headers=headers,
-                 json=payload, verify=False, timeout=10))
+        try:
+            result = self.check_result(
+                post(url=f'{self.api_server}/trade-api-bff-operations/api/v1/orders', headers=headers,
+                     json=payload, verify=False, timeout=10))
+        except Exception as e:
+            print(f"Произошла ошибка BCS Trade API: {e}")
+            return None
         time.sleep(5)
         disable_warnings(InsecureRequestWarning)
         status = self.check_result(
@@ -126,9 +134,13 @@ class BcsPy:
                    'classCode': security_board
                    }
         disable_warnings(InsecureRequestWarning)
-        result = self.check_result(
-            post(url=f'{self.api_server}/trade-api-bff-operations/api/v1/orders', headers=headers,
-                 json=payload, verify=False, timeout=10))
+        try:
+            result = self.check_result(
+                post(url=f'{self.api_server}/trade-api-bff-operations/api/v1/orders', headers=headers,
+                     json=payload, verify=False, timeout=10))
+        except Exception as e:
+            print(f"Произошла ошибка BCS Trade API: {e}")
+            return None
         time.sleep(5)
         disable_warnings(InsecureRequestWarning)
         status = self.check_result(
@@ -156,15 +168,20 @@ class BcsPy:
                   'timeFrame': "M30",
                   }
         disable_warnings(InsecureRequestWarning)
-        result = self.check_result(
-            get(url=f'{self.api_server}'
-                    f'/trade-api-market-data-connector/api/v1/candles-chart?'
-                    f'classCode={security_board}'
-                    f'&ticker={symbols}'
-                    f'&startDate={one_hour_ago_iso_8601_string}'
-                    f'&endDate={current_datetime_iso_8601_string}'
-                    f'&timeFrame=M30',
-                headers=self.get_headers(), timeout=60, verify=False))
+        try:
+            result = self.check_result(
+                get(url=f'{self.api_server}'
+                        f'/trade-api-market-data-connector/api/v1/candles-chart?'
+                        f'classCode={security_board}'
+                        f'&ticker={symbols}'
+                        f'&startDate={one_hour_ago_iso_8601_string}'
+                        f'&endDate={current_datetime_iso_8601_string}'
+                        f'&timeFrame=M30',
+                    headers=self.get_headers(), timeout=60, verify=False))
+        except Exception as e:
+            print(f"Произошла ошибка BCS Trade API: {e}")
+            return None
+
         return result
 
     def get_jwt_token(self):
